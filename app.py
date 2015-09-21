@@ -31,14 +31,6 @@ def getstatus(host, path=""):
     json2 = "{0} {1}".format(res2.status, res2.reason)
     return '{"http":"' + json1 + '","https":"' + json2 + '"}'
 
-@application.route('/test/<d>')
-def test(d):
-    try:
-        r = subprocess.check_output(["ls"])
-        return "success"
-    except subprocess.CalledProcessError as e:
-        return "CPE" + unicode(e.returncode, "utf-8") + unicode(e.output, "utf-8")
-
 @application.route('/dig/<d>')
 def dig(d):
     domain = "{0}".format(d)
@@ -56,5 +48,4 @@ def ping(domain):
 
 if __name__ == '__main__':
     application.run(host='127.0.0.1', port='8080')
-
 
