@@ -1,22 +1,40 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>SiteUppity</title>
-</head>
-<body>
-<form id="siteuppity_form" method="GET" action="/">
-<div>
-    <p>
-        <input type="text" id="host" />
-    </p>
-    <p>
-        <input type="text" id="path" />
-    </p>
-    <p>
-        <button>Run</button>
-    </p>
-</div>
-</form>
+    <head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title>SiteUppity</title>
+
+	<style type="text/css">
+	    body {
+		font-family: sans-serif;
+	    }
+            input {
+	        border: 1px solid #ccc;
+	        color: #000;
+	        font-size: 1em;
+	        padding: 5px;
+	    }
+	    button {
+		font-size: 16px;
+		padding: 5px;
+	    }
+	</style>
+    </head>
+    <body>
+	<form id="siteuppity_form" method="GET" action="/">
+	    <div>
+		<p>SiteUppity will return the HTTP status code, PING output, and DIG output.<br>Simply enter a domain. The path defaults to "/".</p>
+		<p>
+        	    The domain<br><input type="text" id="host" placeholder="example.com">
+    		</p>
+    		<p>
+        	    The path<br><input type="text" id="path" placeholder="/">
+    		</p>
+    		<p>
+        	    <button>Execute</button>
+    		</p>
+	    </div>
+	</form>
 
 <div id="httpStatusResult"></div>
 <div id="pingresult"></div>
