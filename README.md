@@ -11,3 +11,5 @@ The app is deployed on an Ubuntu server using Apache. Here is the config file:
         WSGIDaemonProcess SiteUppity user=www-data group=www-data processes=1 threads=5
         WSGIScriptAlias / /var/www/SiteUppitySource/app.py
     </VirtualHost>
+
+If you use a significant portion of this source code in your projects, please include an attribution link back to siteuppity.com. Thank you!
