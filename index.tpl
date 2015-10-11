@@ -6,46 +6,45 @@
 	<style type="text/css">
 	    body {
 		font-family: sans-serif;
-                font-size: 15px;
-                line-height: 18px;
+            font-size: 15px;
+            line-height: 18px;
 	    }
-            p {margin-top: 0;}
-            input {
+        p {margin-top: 0;} h5 {margin: 0;}
+        input {
 	        border: 1px solid #ccc;
 	        color: #000;
 	        font-size: 15px;
 	        padding: 5px;
 	    }
 	    button {
-		font-size: 15px;
-		padding: 5px;
+		    font-size: 15px;
+		    padding: 5px;
 	    }
-            #status, #ping, #dig {
-                border-bottom: 1px solid #ddd;
-                margin: 0 0 5px;
-                width: 400px;
-            }
-	</style>
+        .container {
+            margin: 0 0 5px;
+            width: 800px;
+        }
+        hr {width:800px;border: 1px solid #ddd; margin: 10px 0;}
+    </style>
     </head>
     <body>
-        <div style="width:550px;float:left;">
+        <div style="margin:0 10px 0;width:250px;float:left;">
 	    <form id="siteuppity_form" method="GET" action="/">
 	        <div>
-		    <p>SiteUppity will return the HTTP status code, PING output, and DIG output.<br>Simply enter a domain. The path defaults to "/".</p>
-		    <p>
-        	        The domain<br><input type="text" id="host" placeholder="example.com">
-    		    </p>
-    		    <p>
-        	        The path<br><input type="text" id="path" placeholder="/">
-    		    </p>
-    		    <p>
-        	        <button>Execute</button>
-    		    </p>
+		    <p>SiteUppity will return the HTTP status code, PING output, and DIG output.</p>
+                    <p>Simply enter a domain.</p>
+                    <p>The path defaults to "/".</p>
+		    <p>The domain<br><input type="text" id="host" placeholder="example.com"></p>
+    		    <p>The path<br><input type="text" id="path" placeholder="/"></p>
+    		    <p><button>Execute</button></p>
 	        </div>
 	    </form>
         </div>
         <div style="width:410px;float:left;">
-            <div id="status"></div>
+            <div id="http_status"></div>
+            <div id="https_status"></div>
+            <div id="http_response"></div>
+            <div id="https_response"></div>
             <div id="ping"></div>
             <div id="dig"></div>
         </div>
@@ -57,53 +56,106 @@
     function run() {
         var host = document.getElementById('host').value;
         if (host != '') {
-            document.getElementById('status').innerHTML = 'Processing...';
-            document.getElementById('ping').innerHTML = 'Processing...';
-            document.getElementById('dig').innerHTML = 'Processing...';
+            document.getElementById('http_response').innerHTML = '<h5>HTTP Response Headers:</h5> {...} <hr>';
+            document.getElementById('https_response').innerHTML = '<h5>HTTPs Response Headers:</h5> {...} <hr>';
+            document.getElementById('http_status').innerHTML = '<h5 style="display:inline;">HTTP Status:</h5> {...}';
+            document.getElementById('https_status').innerHTML = '<h5 style="display:inline;">HTTPs Status:</h5> {...}';
+            document.getElementById('ping').innerHTML = '<h5>Ping Output:</h5> {...} <hr>';
+            document.getElementById('dig').innerHTML = '<h5>DIG Output:</h5> {...} <hr>';
             var path = document.getElementById('path').value;
-
-            var statusXHR = new XMLHttpRequest();
-            statusXHR.onreadystatechange = function() {
-                if (statusXHR.readyState == 4 && statusXHR.status == 200) {
-                    var statusresult = JSON.parse(statusXHR.responseText);
-                    var statushtml = '<div id="httpstatus">HTTP Status: ' + statusresult.http + '</div>';
-                    statushtml += '<div id="sslstatus">HTTPS Status: ' + statusresult.https + '</div>';
-                    document.getElementById('status').innerHTML = statushtml;
-                }
-            }
-            statusXHR.open('GET', '/getstatus/' + host + '/' + path, true);
-            statusXHR.send();
-
-            var pingXHR = new XMLHttpRequest();
-            pingXHR.onreadystatechange = function() {
-                if (pingXHR.readyState == 4 && pingXHR.status == 200) {
-                    var pingresult = JSON.parse(pingXHR.responseText);
-                    var pinghtml = '';
-                    for (var i = 0; i < pingresult.length; i++) {
-                        pinghtml = pinghtml + pingresult[i] + "<br>";
+                      
+            var response_xhr = new XMLHttpRequest();
+            var response_secure_xhr = new XMLHttpRequest();
+            var status_xhr = new XMLHttpRequest();
+            var status_secure_xhr = new XMLHttpRequest();
+            var ping_xhr = new XMLHttpRequest();
+            var dig_xhr = new XMLHttpRequest();
+            
+            dig_xhr.onreadystatechange = function() {
+                if (dig_xhr.readyState == 4 && dig_xhr.status == 200) {
+                    var result = JSON.parse(dig_xhr.responseText);
+                    var html = '<h5>DIG Output:</h5>';
+                    for (var i = 0; i < result.length; i++) {
+                        html += result[i] + '<br>';
                     }
-                    document.getElementById('ping').innerHTML = pinghtml;
+                    html += '<hr>';
+                    document.getElementById('dig').innerHTML = html;
                 }
             }
-            pingXHR.open('GET', '/ping/' + host, true);
-            pingXHR.send();
-    
-            var digXHR = new XMLHttpRequest();
-            digXHR.onreadystatechange = function() {
-                if (digXHR.readyState == 4 && digXHR.status == 200) {
-                    var digresult = JSON.parse(digXHR.responseText);
-                    var dightml = "";
-                    for (var i = 0; i < digresult.length; i++) {
-                        dightml = dightml + digresult[i] + "<br>";
+            dig_xhr.open('GET', '/dig/' + host, true);
+            dig_xhr.send();
+
+            response_xhr.onreadystatechange = function() {
+                if (response_xhr.readyState == 4 && response_xhr.status == 200) {
+                    var result = JSON.parse(response_xhr.responseText);
+                    var html = '<div class="container"><h5>HTTP Response Headers:</h5><div>';
+                    for (var key in result) {
+                        if (result.hasOwnProperty(key)) {
+                            html += '<span>' + key + '</span> : ' + result[key] + '<br>';
+                        }
                     }
-                    document.getElementById('dig').innerHTML = dightml;
+                    html += '</div></div><hr>';
+                    document.getElementById('http_response').innerHTML = html;
                 }
             }
-            digXHR.open('GET', '/dig/' + host, true);
-            digXHR.send();
+            response_xhr.open('GET', '/getresponse/0/' + host + '/' + path, true); // not https
+            response_xhr.send();            
+            
+            response_secure_xhr.onreadystatechange = function() {
+                if (response_secure_xhr.readyState == 4 && response_secure_xhr.status == 200) {
+                    var result = JSON.parse(response_secure_xhr.responseText);
+                    var html = '<div class="container"><h5>HTTPs Response Headers:</h5><div>';
+                    for (var key in result) {
+                        if (result.hasOwnProperty(key)) {
+                            html += '<span>' + key + '</span> : ' + result[key] + '<br>';
+                        }
+                    }
+                    html += '</div><hr>';
+                    document.getElementById('https_response').innerHTML = html;
+                }
+            }
+            response_secure_xhr.open('GET', '/getresponse/1/' + host + '/' + path, true); // https
+            response_secure_xhr.send();
+
+            status_xhr.onreadystatechange = function() {
+                if (status_xhr.readyState == 4 && status_xhr.status == 200) {
+                    var result = JSON.parse(status_xhr.responseText);
+                    var html = '<h5 style="display:inline;">HTTP Status:</h5> <span>' + result.status + '</span>';
+                    document.getElementById('http_status').innerHTML = html;
+                }
+            }
+            status_xhr.open('GET', '/getstatus/0/' + host + '/' + path, true); // not https
+            status_xhr.send();
+            
+            status_secure_xhr.onreadystatechange = function() {
+                if (status_secure_xhr.readyState == 4 && status_secure_xhr.status == 200) {
+                    var result = JSON.parse(status_secure_xhr.responseText);
+                    var html = '<h5 style="display:inline;">HTTPs Status:</h5> <span>' + result.status + '</span>';
+                    document.getElementById('https_status').innerHTML = html;
+                }
+            }
+            status_secure_xhr.open('GET', '/getstatus/1/' + host + '/' + path, true); // https
+            status_secure_xhr.send();
+            
+            ping_xhr.onreadystatechange = function() {
+                if (ping_xhr.readyState == 4 && ping_xhr.status == 200) {
+                    var result = JSON.parse(ping_xhr.responseText);
+                    var html = '<div class="container"><h5>Ping Output:</h5><div>';
+                    for (var i = 0; i < result.length; i++) {
+                        html += result[i] + '<br>';
+                    }
+                    html += '</div><hr>';
+                    document.getElementById('ping').innerHTML = html;
+                }
+            }
+            ping_xhr.open('GET', '/ping/' + host, true);
+            ping_xhr.send();
         }     
     }
 </script>
 </body>
 </html>
+
+
+
 

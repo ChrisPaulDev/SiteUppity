@@ -1,43 +1,64 @@
 import sys, os
 sys.path.append('/var/www/SiteUppity')
 
-from bottle import Bottle, route, view, run, template, TEMPLATE_PATH
+from bottle import Bottle, route, view, run, template, static_file, TEMPLATE_PATH
 
 TEMPLATE_PATH.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-import subprocess, re, json, httplib
+import subprocess, re, json, httplib, requests
 
 application = Bottle()
 
+@application.route('/index.html')
+@application.route('/default.html')
 @application.route('/')
 @view('index')
 def index():
     pass
 
-@application.route('/getstatus/<host>/<path>')
-@application.route('/getstatus/<host>/')
-@application.route('/getstatus/<host>')
-def getstatus(host, path=""):
-    json1 = "{0} {1}"
-    json2 = "{0} {1}"
+@application.route('/favicon.ico')
+def fav():
+    return static_file('favicon.ico', root='/var/www/SiteUppity')
+
+@application.route('/robots.txt')
+def robot():
+    return static_file('robots.txt', root='/var/www/SiteUppity')
+
+@application.route('/getresponse/<secure:int>/<d>/<path>/')
+@application.route('/getresponse/<secure:int>/<d>/<path>')
+@application.route('/getresponse/<secure:int>/<d>/')
+@application.route('/getresponse/<secure:int>/<d>')
+def getresponse(secure, d, path = ""):
     path = "/" + path
+    domain = str(d)
+    protocol = "http"
+    if secure == 1:
+        protocol = "https"
+
+    try:
+        response = requests.head(protocol + '://' + domain + path)
+        return json.dumps(dict(response.headers))
+    except Exception as e:
+        return '{"SiteUppity Error":"' + "{0}".format(e.strerror) + '"}'
+
+@application.route('/getstatus/<secure:int>/<host>/<path>/')
+@application.route('/getstatus/<secure:int>/<host>/<path>')
+@application.route('/getstatus/<secure:int>/<host>/')
+@application.route('/getstatus/<secure:int>/<host>')
+def getstatus(secure, host, path = ""):
+    json = "{0} {1}"
+    path = "/" + path
+    headers = {"User-Agent": "SiteUppity.com"}
     try:
         conn = httplib.HTTPConnection(host, 80)
-        conn.request("HEAD", path)
+        if secure == 1:
+            conn = httplib.HTTPSConnection(host, 443)
+        conn.request("HEAD", path, "", headers)
         res = conn.getresponse()
-        json1 = json1.format(res.status, res.reason)
+        json = json.format(res.status, res.reason)
+        return '{"status":"' + json + '"}'
     except Exception as e:
-        json1 = e.strerror
-
-    try:
-        conn2 = httplib.HTTPSConnection(host, 443)
-        conn2.request("HEAD", path)
-        res2 = conn2.getresponse()
-        json2 = json2.format(res2.status, res2.reason)
-    except Exception as e:
-        json2 = e.strerror        
-
-    return '{"http":"' + json1 + '","https":"' + json2 + '"}'
+        json = e.strerror
 
 @application.route('/dig/<d>')
 def dig(d):
