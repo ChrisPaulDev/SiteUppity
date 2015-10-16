@@ -56,9 +56,10 @@ def getstatus(secure, host, path = ""):
         conn.request("HEAD", path, "", headers)
         res = conn.getresponse()
         json = json.format(res.status, res.reason)
-        return '{"status":"' + json + '"}'
     except Exception as e:
         json = e.strerror
+
+    return '{"status":"' + json + '"}'
 
 @application.route('/dig/<d>')
 def dig(d):
