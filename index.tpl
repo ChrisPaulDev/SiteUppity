@@ -3,29 +3,6 @@
     <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 	<title>SiteUppity</title>
-	<style type="text/css">
-	    body {
-		font-family: sans-serif;
-            font-size: 15px;
-            line-height: 18px;
-	    }
-        p {margin-top: 0;} h5 {margin: 0;}
-        input {
-	        border: 1px solid #ccc;
-	        color: #000;
-	        font-size: 15px;
-	        padding: 5px;
-	    }
-	    button {
-		    font-size: 15px;
-		    padding: 5px;
-	    }
-        .container {
-            margin: 0 0 5px;
-            width: 800px;
-        }
-        hr {width:800px;border: 1px solid #ddd; margin: 10px 0;}
-    </style>
     </head>
     <body>
         <div style="margin:0 10px 0;width:250px;float:left;">
