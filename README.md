@@ -14,7 +14,7 @@ The app is deployed on an Ubuntu server using nginx and Apache. nginx config:
         server_name siteuppity.com;
 
         location /static {
-                /var/www/siteuppity/static;
+                root /var/www/siteuppity/static;
         }
         
         location / {
