@@ -3,7 +3,7 @@
     <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 	<title>SiteUppity</title>
-	<style href="style.css" type="text/css />
+	<link rel="stylesheet" href="/static/style.css" type="text/css" />
     </head>
     <body>
         <div style="margin:0 10px 0;width:250px;float:left;">
@@ -19,15 +19,14 @@
 	    </form>
         </div>
         <div style="width:410px;float:left;">
-            <div id="http_status"></div>
-            <div id="https_status"></div>
-            <div id="http_response"></div>
-            <div id="https_response"></div>
-            <div id="ping"></div>
-            <div id="dig"></div>
+            <pre id="http_status"></pre>
+            <pre id="https_status"></pre>
+            <pre id="http_response"></pre>
+            <pre id="https_response"></pre>
+            <pre id="ping"></pre>
+            <pre id="dig"></pre>
         </div>
 
-	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="/static/main.js"></script>
 </body>
 </html>
-
